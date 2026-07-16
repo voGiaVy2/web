@@ -27,6 +27,23 @@ exports.createBooking = catchAsync(async (req, res, next) => {
   res.status(201).json({ success: true, message: 'Đặt phòng thành công.', data: booking });
 });
 
+// GET /api/bookings (ADMIN) - xem toàn bộ đơn đặt phòng để duyệt
+exports.getAllBookings = catchAsync(async (req, res) => {
+  const { status } = req.query;
+  const validStatuses = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'];
+
+  const bookings = await prisma.booking.findMany({
+    where: status && validStatuses.includes(status) ? { status } : undefined,
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+      room: { select: { id: true, title: true, district: true, price: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  res.json({ success: true, data: bookings });
+});
+
 // GET /api/bookings/me (yêu cầu đăng nhập)
 exports.getMyBookings = catchAsync(async (req, res) => {
   const bookings = await prisma.booking.findMany({

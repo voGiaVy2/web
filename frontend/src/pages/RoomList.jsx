@@ -10,6 +10,8 @@ export default function RoomList() {
   const [rooms, setRooms] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
 
   const filters = {
     search: searchParams.get('search') || '',
@@ -21,15 +23,26 @@ export default function RoomList() {
 
   useEffect(() => {
     setLoading(true);
+    setError('');
     roomService
       .getRooms({ ...filters, limit: 12 })
       .then((res) => {
         setRooms(res.data);
         setPagination(res.pagination);
       })
+      .catch((err) => {
+        // Phân biệt rõ "lỗi kết nối/server" với "tìm kiếm không ra kết quả"
+        // để không gây hiểu lầm cho người dùng.
+        setError(
+          err.code === 'ECONNABORTED'
+            ? 'Máy chủ đang khởi động lại (có thể mất 30-50 giây do dùng gói miễn phí). Vui lòng thử lại sau ít giây.'
+            : err.response?.data?.message || 'Không thể kết nối tới máy chủ. Vui lòng thử lại.'
+        );
+        setRooms([]);
+      })
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [searchParams, reloadKey]);
 
   const handleFilterChange = (newFilters) => {
     const params = {};
@@ -52,7 +65,14 @@ export default function RoomList() {
       </div>
 
       {loading ? (
-        <p className="text-ink/50 text-center py-16">Đang tải danh sách phòng...</p>
+        <p className="text-ink/50 text-center py-16">
+          Đang tải danh sách phòng... <span className="block text-xs mt-1">(lần đầu có thể mất tới 30-50 giây do máy chủ dùng gói miễn phí)</span>
+        </p>
+      ) : error ? (
+        <div className="text-center py-16">
+          <p className="text-red-500 mb-4">{error}</p>
+          <button className="btn-secondary" onClick={() => setReloadKey((k) => k + 1)}>Thử lại</button>
+        </div>
       ) : rooms.length === 0 ? (
         <p className="text-ink/50 text-center py-16">Không tìm thấy phòng phù hợp với bộ lọc.</p>
       ) : (

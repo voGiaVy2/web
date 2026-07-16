@@ -23,10 +23,16 @@ export function AuthProvider({ children }) {
         setUser(res.user);
         localStorage.setItem('user', JSON.stringify(res.user));
       })
-      .catch(() => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUser(null);
+      .catch((err) => {
+        // CHỈ đăng xuất khi server xác nhận token không hợp lệ (401).
+        // Nếu là lỗi mạng / server đang "thức dậy" (Render free tier có thể mất
+        // 30-50s cho lần gọi đầu) thì giữ nguyên phiên đăng nhập đã lưu, không
+        // đá người dùng ra ngoài một cách oan uổng.
+        if (err.response?.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setUser(null);
+        }
       })
       .finally(() => setLoading(false));
   }, []);

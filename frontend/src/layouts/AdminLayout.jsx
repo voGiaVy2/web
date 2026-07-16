@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 const links = [
   { to: '/admin', label: 'Tổng quan', end: true },
   { to: '/admin/rooms', label: 'Quản lý phòng' },
+  { to: '/admin/bookings', label: 'Duyệt đơn đặt phòng' },
   { to: '/admin/users', label: 'Quản lý người dùng' },
 ];
 

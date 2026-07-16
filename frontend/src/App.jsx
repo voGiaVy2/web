@@ -17,6 +17,7 @@ import NotFound from './pages/NotFound';
 
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminRooms from './pages/admin/AdminRooms';
+import AdminBookings from './pages/admin/AdminBookings';
 import AdminUsers from './pages/admin/AdminUsers';
 
 export default function App() {
@@ -53,6 +54,7 @@ export default function App() {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="rooms" element={<AdminRooms />} />
+          <Route path="bookings" element={<AdminBookings />} />
           <Route path="users" element={<AdminUsers />} />
         </Route>
       </Routes>
