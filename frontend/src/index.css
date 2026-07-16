@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-sand text-ink font-body antialiased;
+}
+
+h1, h2, h3, h4 {
+  @apply font-display;
+}
+
+/* Focus rõ ràng cho điều hướng bằng bàn phím - a11y */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #E2A33D;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-full bg-teal-600 text-sand px-6 py-3 font-medium
+    hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-full border border-teal-600 text-teal-600 px-6 py-3 font-medium
+    hover:bg-teal-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.input-field {
+  @apply w-full rounded-lg border border-sandDeep bg-white px-4 py-2.5 text-ink placeholder:text-ink/40
+    focus:border-teal-400 focus:ring-1 focus:ring-teal-400 outline-none transition;
+}
+
+.card {
+  @apply bg-white rounded-xl2 shadow-sm border border-sandDeep/60 overflow-hidden;
+}
