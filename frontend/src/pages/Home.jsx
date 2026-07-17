@@ -49,8 +49,47 @@ export default function Home() {
             </div>
           </div>
           <div className="hidden sm:block">
-            <div className="aspect-square rounded-xl2 bg-teal-600/40 border border-sand/10 flex items-center justify-center">
-              <span className="font-display text-8xl text-amber-400">Tổ Ấm</span>
+            <div className="relative aspect-square rounded-xl2 bg-teal-600/40 border border-sand/10 flex items-center justify-center overflow-hidden">
+              <svg
+                className="absolute inset-0 h-full w-full"
+                viewBox="0 0 400 400"
+                preserveAspectRatio="xMidYMid slice"
+                aria-hidden="true"
+              >
+                <defs>
+                  <radialGradient id="glow" cx="50%" cy="38%" r="65%">
+                    <stop offset="0%" stopColor="#E2A33D" stopOpacity="0.35" />
+                    <stop offset="100%" stopColor="#E2A33D" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
+                <rect width="400" height="400" fill="url(#glow)" />
+                {/* Dãy mái nhà cách điệu, lặp lại phía dưới */}
+                {[...Array(6)].map((_, i) => (
+                  <path
+                    key={i}
+                    d={`M${-40 + i * 90} 300 L${5 + i * 90} 250 L${50 + i * 90} 300 Z`}
+                    fill="none"
+                    stroke="#FAF6EF"
+                    strokeOpacity="0.18"
+                    strokeWidth="3"
+                  />
+                ))}
+                {[...Array(6)].map((_, i) => (
+                  <rect
+                    key={`wall-${i}`}
+                    x={-25 + i * 90}
+                    y="300"
+                    width="60"
+                    height="70"
+                    fill="#FAF6EF"
+                    fillOpacity="0.06"
+                    stroke="#FAF6EF"
+                    strokeOpacity="0.12"
+                    strokeWidth="2"
+                  />
+                ))}
+              </svg>
+              <span className="relative z-10 font-display text-8xl text-amber-400">Tổ Ấm</span>
             </div>
           </div>
         </div>

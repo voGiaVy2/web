@@ -27,7 +27,11 @@ export default function SearchFilter({ filters, onChange }) {
       <select
         className="input-field"
         value={local.categoryId || ''}
-        onChange={(e) => setLocal({ ...local, categoryId: e.target.value })}
+        onChange={(e) => {
+          const next = { ...local, categoryId: e.target.value };
+          setLocal(next);
+          onChange({ ...next, page: 1 });
+        }}
       >
         <option value="">Tất cả loại phòng</option>
         {categories.map((c) => (

@@ -147,6 +147,32 @@ export default function AdminRooms() {
       {loading ? (
         <p className="text-ink/50">Đang tải...</p>
       ) : (
+        <div className="space-y-8">
+          <RoomsTable
+            title="Phòng còn trống"
+            rooms={rooms.filter((r) => r.isAvailable)}
+            onEdit={openEdit}
+            onDelete={handleDelete}
+          />
+          <RoomsTable
+            title="Phòng đã được thuê"
+            rooms={rooms.filter((r) => !r.isAvailable)}
+            onEdit={openEdit}
+            onDelete={handleDelete}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RoomsTable({ title, rooms, onEdit, onDelete }) {
+  return (
+    <div>
+      <h2 className="text-lg font-semibold mb-3">{title} ({rooms.length})</h2>
+      {rooms.length === 0 ? (
+        <p className="text-ink/50 text-sm">Không có phòng nào.</p>
+      ) : (
         <div className="overflow-x-auto card">
           <table className="w-full text-sm">
             <thead className="bg-sandDeep text-left">
@@ -170,8 +196,8 @@ export default function AdminRooms() {
                     </span>
                   </td>
                   <td className="p-3 space-x-3">
-                    <button onClick={() => openEdit(room)} className="text-teal-600 hover:underline">Sửa</button>
-                    <button onClick={() => handleDelete(room.id)} className="text-red-500 hover:underline">Xóa</button>
+                    <button onClick={() => onEdit(room)} className="text-teal-600 hover:underline">Sửa</button>
+                    <button onClick={() => onDelete(room.id)} className="text-red-500 hover:underline">Xóa</button>
                   </td>
                 </tr>
               ))}
