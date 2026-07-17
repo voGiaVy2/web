@@ -67,6 +67,27 @@ exports.updateBookingStatus = catchAsync(async (req, res, next) => {
   const booking = await prisma.booking.findUnique({ where: { id } });
   if (!booking) return next(new AppError('Không tìm thấy đơn đặt phòng.', 404));
 
-  const updated = await prisma.booking.update({ where: { id }, data: { status } });
+  // Dùng transaction để đảm bảo trạng thái đơn và trạng thái phòng luôn đồng bộ,
+  // tránh trường hợp cập nhật nửa chừng bị lỗi giữa 2 bảng.
+  const updated = await prisma.$transaction(async (tx) => {
+    const updatedBooking = await tx.booking.update({ where: { id }, data: { status } });
+
+    if (status === 'CONFIRMED') {
+      // Đơn được duyệt -> đánh dấu phòng hết trống ngay lập tức
+      await tx.room.update({ where: { id: booking.roomId }, data: { isAvailable: false } });
+    } else if (status === 'CANCELLED' || status === 'COMPLETED') {
+      // Đơn bị huỷ hoặc đã hoàn tất -> chỉ mở lại phòng nếu KHÔNG còn đơn nào khác
+      // đang PENDING/CONFIRMED cho phòng này (tránh mở nhầm khi có đơn chờ khác).
+      const stillActive = await tx.booking.count({
+        where: { roomId: booking.roomId, status: { in: ['PENDING', 'CONFIRMED'] }, id: { not: id } },
+      });
+      if (stillActive === 0) {
+        await tx.room.update({ where: { id: booking.roomId }, data: { isAvailable: true } });
+      }
+    }
+
+    return updatedBooking;
+  });
+
   res.json({ success: true, message: 'Cập nhật trạng thái thành công.', data: updated });
 });
