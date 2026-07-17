@@ -25,11 +25,11 @@ const updateRoomRules = [
 ];
 
 const searchRoomRules = [
-  query('page').optional().isInt({ min: 1 }),
-  query('limit').optional().isInt({ min: 1, max: 100 }),
-  query('minPrice').optional().isFloat({ min: 0 }),
-  query('maxPrice').optional().isFloat({ min: 0 }),
-  query('categoryId').optional().isInt({ min: 1 }),
+  query('page').optional({ checkFalsy: true }).isInt({ min: 1 }),
+  query('limit').optional({ checkFalsy: true }).isInt({ min: 1, max: 100 }),
+  query('minPrice').optional({ checkFalsy: true }).isFloat({ min: 0 }),
+  query('maxPrice').optional({ checkFalsy: true }).isFloat({ min: 0 }),
+  query('categoryId').optional({ checkFalsy: true }).isInt({ min: 1 }),
 ];
 
 module.exports = { createRoomRules, updateRoomRules, searchRoomRules };

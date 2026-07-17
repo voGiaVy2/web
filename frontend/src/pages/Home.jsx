@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import roomService from '../services/roomService';
 import RoomCard from '../components/RoomCard';
+import { useAuth } from '../hooks/useAuth';
 
 const categoryIcons = {
   'Phòng trọ giá rẻ': '🏠',
@@ -11,6 +12,7 @@ const categoryIcons = {
 };
 
 export default function Home() {
+  const { user } = useAuth();
   const [rooms, setRooms] = useState([]);
   const [categories, setCategories] = useState([]);
 
@@ -39,9 +41,11 @@ export default function Home() {
               <Link to="/rooms" className="btn-primary bg-amber-600 hover:bg-amber-500">
                 Tìm phòng ngay
               </Link>
-              <Link to="/register" className="btn-secondary !border-sand !text-sand hover:!bg-teal-600">
-                Tạo tài khoản
-              </Link>
+              {!user && (
+                <Link to="/register" className="btn-secondary !border-sand !text-sand hover:!bg-teal-600">
+                  Tạo tài khoản
+                </Link>
+              )}
             </div>
           </div>
           <div className="hidden sm:block">
