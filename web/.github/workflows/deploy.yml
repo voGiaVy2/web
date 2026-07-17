@@ -1,0 +1,32 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-backend:
+    name: Trigger Render Deploy (Backend)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Render Deploy Hook
+        run: |
+          if [ -n "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
+            curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+            echo "Đã gọi Render Deploy Hook."
+          else
+            echo "Chưa cấu hình RENDER_DEPLOY_HOOK_URL trong Secrets - bỏ qua bước này."
+          fi
+
+  deploy-frontend:
+    name: Trigger Vercel Deploy (Frontend)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Vercel Deploy Hook
+        run: |
+          if [ -n "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" ]; then
+            curl -fsS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
+            echo "Đã gọi Vercel Deploy Hook."
+          else
+            echo "Chưa cấu hình VERCEL_DEPLOY_HOOK_URL trong Secrets - bỏ qua bước này."
+          fi
