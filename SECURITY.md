@@ -58,5 +58,10 @@ và "Authentication" (1.0đ) trong bảng chấm điểm.
 
 ## 11. Không lộ thông tin nhạy cảm
 - `errorHandler` không trả `stack trace` khi `NODE_ENV=production`.
+
+## 12. Chống IDOR (Insecure Direct Object Reference)
+- `PUT /api/bookings/:id/cancel`: user chỉ huỷ được đơn có `booking.userId === req.user.id`;
+  nếu truyền `id` của đơn thuộc về người khác → trả về 403, không tiết lộ đơn đó có tồn tại
+  hay không. Có test tự động `tests/bookings.test.js` cho case này.
 - Response user luôn loại bỏ field `password`, `resetPasswordToken`, `emailVerifyToken` trước
   khi gửi về client (`toSafeUser`, `select` trong Prisma).

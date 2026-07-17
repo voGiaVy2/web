@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import bookingService from '../services/bookingService';
+import Alert from '../components/Alert';
 
 const statusLabels = {
   PENDING: ['Chờ xác nhận', 'bg-amber-100 text-amber-700'],
@@ -16,14 +17,32 @@ function formatPrice(price) {
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     bookingService.getMyBookings().then((res) => setBookings(res.data)).finally(() => setLoading(false));
   }, []);
 
+  const handleCancel = async (id) => {
+    if (!window.confirm('Bạn có chắc muốn huỷ đơn đặt phòng này?')) return;
+    setError('');
+    setCancellingId(id);
+    try {
+      const res = await bookingService.cancelMyBooking(id);
+      setBookings((prev) => prev.map((b) => (b.id === id ? res.data : b)));
+    } catch (err) {
+      setError(err.response?.data?.message || 'Huỷ đơn thất bại. Vui lòng thử lại.');
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
       <h1 className="text-3xl font-semibold mb-8">Đơn đặt phòng của tôi</h1>
+
+      {error && <div className="mb-4"><Alert type="error">{error}</Alert></div>}
 
       {loading ? (
         <p className="text-ink/50">Đang tải...</p>
@@ -47,7 +66,18 @@ export default function MyBookings() {
                   </p>
                   <p className="text-amber-600 font-medium text-sm">{formatPrice(Number(b.room?.price || 0))}/tháng</p>
                 </div>
-                <span className={`h-fit px-3 py-1 rounded-full text-xs font-medium ${cls}`}>{label}</span>
+                <div className="h-fit flex flex-col items-end gap-2">
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${cls}`}>{label}</span>
+                  {['PENDING', 'CONFIRMED'].includes(b.status) && (
+                    <button
+                      onClick={() => handleCancel(b.id)}
+                      disabled={cancellingId === b.id}
+                      className="text-xs text-red-600 hover:underline disabled:opacity-50"
+                    >
+                      {cancellingId === b.id ? 'Đang huỷ...' : 'Huỷ đơn'}
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}

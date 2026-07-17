@@ -5,5 +5,11 @@
   "rules": {
     "no-unused-vars": "warn",
     "no-console": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["tests/**/*.js"],
+      "env": { "jest": true }
+    }
+  ]
 }

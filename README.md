@@ -21,7 +21,14 @@ theo OWASP cơ bản, và CI/CD tự động deploy.
 frontend/   -> React app (Vercel)
 backend/    -> Express API (Render)
 .github/workflows/ -> CI/CD
+docs/       -> ERD, use-case, kiến trúc hệ thống
 ```
+
+## Tài liệu liên quan
+
+- [`docs/PHAN-TICH-HE-THONG.md`](docs/PHAN-TICH-HE-THONG.md) — ý tưởng, sơ đồ ERD, use-case, luồng hoạt động, kiến trúc triển khai.
+- [`SECURITY.md`](SECURITY.md) — các biện pháp bảo mật đã triển khai (OWASP cơ bản).
+- [`TESTING.md`](TESTING.md) — test tự động (Jest + Supertest) và checklist kiểm thử thủ công.
 
 ---
 
@@ -50,6 +57,12 @@ Thấy dòng `🚀 Server đang chạy tại http://localhost:5000` là xong, **
 Tài khoản demo có sẵn sau khi chạy `npm run setup`:
 - Admin: `admin@example.com` / `Admin@123`
 - User: `user@example.com` / `User@123`
+
+**Chạy test tự động (không cần MySQL, không cần setup gì thêm):**
+```bash
+cd backend
+npm test
+```
 
 ### Bước 2 — Chạy Frontend (mở terminal MỚI, cửa sổ 2)
 ```bash

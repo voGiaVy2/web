@@ -12,6 +12,7 @@
     "prisma:migrate": "prisma migrate deploy",
     "prisma:migrate:dev": "prisma migrate dev",
     "lint": "eslint .",
+    "test": "cross-env NODE_ENV=test JWT_SECRET=test_secret JWT_RESET_SECRET=test_reset_secret jest --runInBand",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -31,9 +32,12 @@
     "xss": "^1.0.15"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "eslint": "^8.57.0",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.4",
-    "prisma": "^5.20.0"
+    "prisma": "^5.20.0",
+    "supertest": "^7.0.0"
   },
   "engines": {
     "node": ">=18.0.0"

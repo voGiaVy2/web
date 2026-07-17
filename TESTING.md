@@ -1,7 +1,32 @@
 # Kiểm thử — Tổ Ấm
 
-Checklist kiểm thử thủ công tương ứng tiêu chí "Kiểm thử & Fix lỗi" (1.0đ) trong bảng chấm điểm.
-Có thể dùng Postman hoặc trực tiếp trên UI đã deploy.
+Tài liệu này tương ứng tiêu chí "Kiểm thử & Fix lỗi" (1.0đ) trong bảng chấm điểm, gồm 2 phần:
+**test tự động** (chạy bằng lệnh, không cần thao tác tay) và **checklist kiểm thử thủ công**
+(dùng Postman/UI để kiểm tra thêm các luồng khó tự động hoá như email thật).
+
+## 0. Test tự động (Jest + Supertest)
+
+Bộ test nằm ở `backend/tests/`, chạy ở tầng route → middleware → controller, dùng **Prisma Client
+giả lập** (`tests/helpers/prismaMock.js`) nên **không cần kết nối MySQL thật** khi chạy CI —
+nhanh, không phụ thuộc môi trường, chạy được ở bất kỳ máy nào chỉ với `npm install`.
+
+```bash
+cd backend
+npm install
+npm test
+```
+
+Bộ test hiện có 4 file, ~39 test case:
+
+| File | Nội dung kiểm thử |
+|---|---|
+| `tests/auth.test.js` | Đăng ký/đăng nhập thành công & thất bại, chống mass-assignment (gửi `role: "ADMIN"` khi đăng ký bị bỏ qua), chống user enumeration (message lỗi giống nhau dù sai email hay sai mật khẩu), route `/me` yêu cầu token hợp lệ, response không bao giờ lộ field `password`. |
+| `tests/rooms.test.js` | Phân trang, validate query (`minPrice` âm, `limit` vượt quá 100 bị từ chối ở tầng validate), phân quyền tạo/sửa/xoá phòng (401 chưa đăng nhập, 403 user thường, 201 khi ADMIN), báo lỗi khi `categoryId` không tồn tại. |
+| `tests/bookings.test.js` | Tạo booking (validate ngày, phòng còn trống), **chống IDOR**: user A không huỷ được đơn của user B (403), không huỷ lại được đơn đã `CANCELLED/COMPLETED`, đồng bộ `Room.isAvailable` khi admin duyệt/huỷ đơn qua transaction. |
+| `tests/security.test.js` | Helmet set đúng header bảo mật (`X-Content-Type-Options`, ẩn `X-Powered-By`), route lạ trả 404 thay vì crash, input XSS bị làm sạch trước khi lưu, lỗi 500 không lộ stack trace khi `NODE_ENV=production`, body JSON > 10kb bị từ chối (413). |
+
+CI (`.github/workflows/ci.yml`) chạy `npm run lint` và `npm test` trên mỗi lần push/PR vào `main` —
+build sẽ **fail thật sự** nếu có lỗi lint hoặc test không qua (không còn `|| true` che lỗi).
 
 ## 1. Test chức năng cơ bản (Manual Testing)
 
@@ -34,6 +59,10 @@ Có thể dùng Postman hoặc trực tiếp trên UI đã deploy.
 - [ ] Đặt lịch với `fromDate >= toDate` → lỗi 400.
 - [ ] Đặt lịch cho phòng đã hết trống (`isAvailable=false`) → lỗi 400.
 - [ ] Xem danh sách đơn của mình (`/bookings/me`) → chỉ thấy đơn của chính user đó.
+- [ ] Tự huỷ đơn của mình (`PUT /bookings/:id/cancel`) khi đơn đang `PENDING`/`CONFIRMED` →
+      thành công, phòng được mở lại nếu không còn đơn active nào khác.
+- [ ] Huỷ đơn của **người khác** (đổi `id` sang đơn không thuộc về mình) → lỗi 403 (chống IDOR).
+- [ ] Huỷ đơn đã `CANCELLED`/`COMPLETED` → lỗi 400.
 - [ ] Admin đổi trạng thái đơn (`PENDING → CONFIRMED`) → thành công; user thường gọi route này
       → lỗi 403.
 

@@ -54,6 +54,41 @@ exports.getMyBookings = catchAsync(async (req, res) => {
   res.json({ success: true, data: bookings });
 });
 
+// PUT /api/bookings/:id/cancel (User tự huỷ đơn của chính mình)
+exports.cancelMyBooking = catchAsync(async (req, res, next) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return next(new AppError('ID đơn đặt phòng không hợp lệ.', 400));
+
+  const booking = await prisma.booking.findUnique({ where: { id } });
+  if (!booking) return next(new AppError('Không tìm thấy đơn đặt phòng.', 404));
+
+  // Chỉ chủ đơn mới được huỷ đơn của chính mình -> chống IDOR/broken access control
+  if (booking.userId !== req.user.id) {
+    return next(new AppError('Bạn không có quyền huỷ đơn đặt phòng này.', 403));
+  }
+
+  if (['CANCELLED', 'COMPLETED'].includes(booking.status)) {
+    return next(new AppError('Đơn đặt phòng này không thể huỷ ở trạng thái hiện tại.', 400));
+  }
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const cancelled = await tx.booking.update({ where: { id }, data: { status: 'CANCELLED' } });
+
+    // Nếu phòng đang bị đánh dấu hết trống vì đơn này, và không còn đơn nào khác
+    // đang PENDING/CONFIRMED, thì mở lại phòng.
+    const stillActive = await tx.booking.count({
+      where: { roomId: booking.roomId, status: { in: ['PENDING', 'CONFIRMED'] }, id: { not: id } },
+    });
+    if (stillActive === 0) {
+      await tx.room.update({ where: { id: booking.roomId }, data: { isAvailable: true } });
+    }
+
+    return cancelled;
+  });
+
+  res.json({ success: true, message: 'Huỷ đơn đặt phòng thành công.', data: updated });
+});
+
 // PUT /api/bookings/:id/status (ADMIN)
 exports.updateBookingStatus = catchAsync(async (req, res, next) => {
   const id = Number(req.params.id);

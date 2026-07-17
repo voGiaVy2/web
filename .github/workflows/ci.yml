@@ -30,7 +30,10 @@ jobs:
         run: npx prisma generate
 
       - name: Run ESLint
-        run: npm run lint || true
+        run: npm run lint
+
+      - name: Run automated tests (Jest + Supertest)
+        run: npm test
 
   frontend:
     name: Frontend - Lint & Build
@@ -52,7 +55,7 @@ jobs:
         run: npm ci || npm install
 
       - name: Run ESLint
-        run: npm run lint || true
+        run: npm run lint
 
       - name: Build
         run: npm run build
