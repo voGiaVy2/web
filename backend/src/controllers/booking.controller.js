@@ -84,7 +84,7 @@ exports.cancelMyBooking = catchAsync(async (req, res, next) => {
     }
 
     return cancelled;
-  });
+  }, { maxWait: 10000, timeout: 15000 });
 
   res.json({ success: true, message: 'Huỷ đơn đặt phòng thành công.', data: updated });
 });
@@ -122,7 +122,7 @@ exports.updateBookingStatus = catchAsync(async (req, res, next) => {
     }
 
     return updatedBooking;
-  });
+  }, { maxWait: 10000, timeout: 15000 });
 
   res.json({ success: true, message: 'Cập nhật trạng thái thành công.', data: updated });
 });

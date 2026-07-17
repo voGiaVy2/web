@@ -28,6 +28,15 @@ exports.updateUserRole = catchAsync(async (req, res, next) => {
   res.json({ success: true, message: 'Cập nhật vai trò thành công.', data: user });
 });
 
+// GET /api/admin/rooms (ADMIN) - lấy TẤT CẢ phòng, không lọc isAvailable như API công khai
+exports.getAllRooms = catchAsync(async (req, res) => {
+  const rooms = await prisma.room.findMany({
+    include: { category: true, images: { take: 1 } },
+    orderBy: { createdAt: 'desc' },
+  });
+  res.json({ success: true, data: rooms });
+});
+
 // GET /api/admin/stats (ADMIN) - dữ liệu tổng quan cho dashboard
 exports.getStats = catchAsync(async (req, res) => {
   const [totalUsers, totalRooms, totalBookings, availableRooms, pendingBookings] = await Promise.all([

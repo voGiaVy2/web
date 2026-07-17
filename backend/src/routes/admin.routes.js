@@ -10,5 +10,6 @@ router.use(protect, restrictTo('ADMIN'));
 router.get('/users', adminController.getUsers);
 router.put('/users/:id/role', adminController.updateUserRole);
 router.get('/stats', adminController.getStats);
+router.get('/rooms', adminController.getAllRooms);
 
 module.exports = router;

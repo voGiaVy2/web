@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import roomService from '../../services/roomService';
+import adminService from '../../services/adminService';
 import Alert from '../../components/Alert';
 
 const emptyForm = {
@@ -23,7 +24,7 @@ export default function AdminRooms() {
 
   const loadRooms = () => {
     setLoading(true);
-    roomService.getRooms({ limit: 50 }).then((res) => setRooms(res.data)).finally(() => setLoading(false));
+    adminService.getAllRooms().then((res) => setRooms(res.data)).finally(() => setLoading(false));
   };
 
   useEffect(() => {
